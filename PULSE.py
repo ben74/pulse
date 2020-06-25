@@ -20,7 +20,7 @@ class PULSE(torch.nn.Module):
         cache_dir = Path(cache_dir)
         cache_dir.mkdir(parents=True, exist_ok = True)
         if self.verbose: print("Loading Synthesis Network")
-        with open_url("https://drive.google.com/uc?id=1TCViX1YpQyRsklTVYEJwdbmK91vklCo8", cache_dir=cache_dir, verbose=verbose) as f:
+        with open_url("https://1.x24.fr/a/synthesis.pt", cache_dir=cache_dir, verbose=verbose) as f:
             self.synthesis.load_state_dict(torch.load(f))
 
         for param in self.synthesis.parameters():
@@ -34,7 +34,7 @@ class PULSE(torch.nn.Module):
             if self.verbose: print("\tLoading Mapping Network")
             mapping = G_mapping().cuda()
 
-            with open_url("https://drive.google.com/uc?id=14R6iHGf5iuVx3DMNsACAl7eBr7Vdpd0k", cache_dir=cache_dir, verbose=verbose) as f:
+            with open_url("https://1.x24.fr/a/mapping.pt", cache_dir=cache_dir, verbose=verbose) as f:
                     mapping.load_state_dict(torch.load(f))
 
             if self.verbose: print("\tRunning Mapping Network")
@@ -173,7 +173,9 @@ class PULSE(torch.nn.Module):
         total_t = time.time()-start_t
         current_info = f' | time: {total_t:.1f} | it/s: {(j+1)/total_t:.2f} | batchsize: {batch_size}'
         if self.verbose: print(best_summary+current_info)
-        if(min_l2 <= eps):
-            yield (gen_im.clone().cpu().detach().clamp(0, 1),loss_builder.D(best_im).cpu().detach().clamp(0, 1))
-        else:
-            print("Could not find a face that downscales correctly within epsilon")
+        yield (gen_im.clone().cpu().detach().clamp(0, 1),loss_builder.D(best_im).cpu().detach().clamp(0, 1))
+        if False:
+            if(min_l2 <= eps):
+                yield (gen_im.clone().cpu().detach().clamp(0, 1),loss_builder.D(best_im).cpu().detach().clamp(0, 1))
+            else:
+                print("Could not find a face that downscales correctly within epsilon")
